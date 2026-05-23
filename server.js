@@ -3,36 +3,34 @@ const app = express();
 
 app.use(express.json());
 
-// fila de comandos
 let queue = [];
 
-// teste de servidor
-app.get("/", (req, res) => {
-    res.send("API SA-MP ONLINE");
-});
-
-// Java envia comando
+// Pawn envia comando
 app.post("/send", (req, res) => {
-    if (!req.body) return res.json({ error: "no body" });
+    const event = {
+        playerid: req.body.playerid || 0,
+        action: req.body.action,
+        data: req.body.data || ""
+    };
 
-    queue.push(req.body);
+    queue.push(event);
 
-    console.log("Recebido:", req.body);
+    console.log("EVENT:", event);
 
     res.json({ ok: true });
 });
 
-// Pawn busca comando
+// Android APP só RECEBE comandos
 app.get("/get", (req, res) => {
-    const cmd = queue.shift();
+    const event = queue.shift();
 
-    if (!cmd) {
+    if (!event) {
         return res.json({ action: "none" });
     }
 
-    res.json(cmd);
+    res.json(event);
 });
 
 app.listen(process.env.PORT || 3000, () => {
-    console.log("Servidor rodando na porta " + (process.env.PORT || 3000));
+    console.log("API rodando");
 });
